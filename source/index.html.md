@@ -20,16 +20,16 @@ code_clipboard: true
 
 meta:
   - name: description
-    content: Documentation for the Kittn API
+    content: Documentation for the Padam API
 ---
 
 # Introduction
 
-Welcome to the Kittn API! You can use our API to access Kittn API endpoints, which can get information on various cats, kittens, and breeds in our database.
+Welcome to the Padam API! You can use our API to access Padam API endpoints, *which can get information on various 
+cats, kittens, and breeds in our database* (**TODO**).
 
-We have language bindings in Shell, Ruby, Python, and JavaScript! You can view code examples in the dark area to the right, and you can switch the programming language of the examples with the tabs in the top right.
-
-This example API documentation page was created with [Slate](https://github.com/slatedocs/slate). Feel free to edit it and use it as a base for your own API's documentation.
+We have language bindings in Shell, Java, Python, and JavaScript! You can view code examples in the dark area to the 
+right, and you can switch the programming language of the examples with the tabs in the top right.
 
 # Authentication
 
@@ -38,42 +38,44 @@ This example API documentation page was created with [Slate](https://github.com/
 ```ruby
 require 'kittn'
 
-api = Kittn::APIClient.authorize!('meowmeowmeow')
+api = Kittn::APIClient.authorize!('secret')
 ```
 
 ```python
-import kittn
+import padam
 
-api = kittn.authorize('meowmeowmeow')
+api = padam.authorize('secret')
 ```
 
 ```shell
 # With shell, you can just pass the correct header with each request
 curl "api_endpoint_here" \
-  -H "Authorization: meowmeowmeow"
+  -H "Authorization: secret"
 ```
 
 ```javascript
-const kittn = require('kittn');
+const padam = require('padam');
 
-let api = kittn.authorize('meowmeowmeow');
+let api = padam.authorize('secret');
 ```
 
-> Make sure to replace `meowmeowmeow` with your API key.
+> Make sure to replace `secret` with your API key.
 
-Kittn uses API keys to allow access to the API. You can register a new Kittn API key at our [developer portal](http://example.com/developers).
+Padam uses API keys to allow access to the API. You can register a new Padam API key at our 
+[developer portal](http://example.com/developers).
 
-Kittn expects for the API key to be included in all API requests to the server in a header that looks like the following:
+Padam expects for the API key to be included in all API requests to the server in a header that looks like the 
+following:
 
-`Authorization: meowmeowmeow`
+`Authorization: secret`
 
 <aside class="notice">
-You must replace <code>meowmeowmeow</code> with your personal API key.
+You must replace <code>secret</code> with your personal API key.
 </aside>
 
-# Kittens
+# Nodes
 
-## Get All Kittens
+## Search among nodes
 
 ```ruby
 require 'kittn'
@@ -82,164 +84,94 @@ api = Kittn::APIClient.authorize!('meowmeowmeow')
 api.kittens.get
 ```
 
-```python
-import kittn
-
-api = kittn.authorize('meowmeowmeow')
-api.kittens.get()
-```
-
 ```shell
-curl "http://example.com/api/kittens" \
-  -H "Authorization: meowmeowmeow"
-```
-
-```javascript
-const kittn = require('kittn');
-
-let api = kittn.authorize('meowmeowmeow');
-let kittens = api.kittens.get();
+curl "http://example.com/api/nodes/search" \
+  -H "Authorization: secret"
 ```
 
 > The above command returns JSON structured like this:
 
 ```json
-[
-  {
-    "id": 1,
-    "name": "Fluffums",
-    "breed": "calico",
-    "fluffiness": 6,
-    "cuteness": 7
-  },
-  {
-    "id": 2,
-    "name": "Max",
-    "breed": "unknown",
-    "fluffiness": 5,
-    "cuteness": 10
-  }
-]
+{
+  "count": 1,
+  "next": "http://example.com",
+  "previous": "http://example.com",
+    "results": [{
+      "id": 42,
+      "name": "Place de la mairie",
+      "longitude": 2.466311814729767,
+      "latitude": 49.192376994101174
+    }]
+}
 ```
 
-This endpoint retrieves all kittens.
+This endpoint allows to search among all nodes.
 
 ### HTTP Request
 
-`GET http://example.com/api/kittens`
+`GET http://example.com/api/nodes/search`
 
-### Query Parameters
+### URL Parameters
 
-Parameter | Default | Description
---------- | ------- | -----------
-include_cats | false | If set to true, the result will also include cats.
-available | true | If set to false, the result will include kittens that have already been adopted.
+Parameter | Description
+--------- | -----------
+value | Optional. If given, filter against node's names.
 
 <aside class="success">
 Remember — a happy kitten is an authenticated kitten!
 </aside>
 
-## Get a Specific Kitten
+# Itineraries
 
-```ruby
-require 'kittn'
+## Create an itinerary search
 
-api = Kittn::APIClient.authorize!('meowmeowmeow')
-api.kittens.get(2)
-```
-
-```python
-import kittn
-
-api = kittn.authorize('meowmeowmeow')
-api.kittens.get(2)
-```
+This endpoint creates a new itinerary search in our system. You can use the id of this itinerary to retrieve the 
+propositions that you can display to your users.
 
 ```shell
-curl "http://example.com/api/kittens/2" \
-  -H "Authorization: meowmeowmeow"
-```
-
-```javascript
-const kittn = require('kittn');
-
-let api = kittn.authorize('meowmeowmeow');
-let max = api.kittens.get(2);
+curl -X "http://example.com/api/itineraries" \
+-H "Authorization: secret" \
+-H "accept: application/json" -H "Content-Type: application/json"\ 
+-d '{\
+  "origin_id": 42,\ 
+  "destination_id": 43,\ 
+  "departure_time": "2022-03-16T09:56:49Z",\
+  "passengers": [{}]\
+}'
 ```
 
 > The above command returns JSON structured like this:
 
 ```json
 {
-  "id": 2,
-  "name": "Max",
-  "breed": "unknown",
-  "fluffiness": 5,
-  "cuteness": 10
+  "id": "0b2c0e76-7ecc-42c8-9239-913a4e5f5544"
 }
 ```
 
-This endpoint retrieves a specific kitten.
+### HTTP Request
 
-<aside class="warning">Inside HTML code blocks like this one, you can't use Markdown, so use <code>&lt;code&gt;</code> blocks to denote code.</aside>
+`POST http://example.com/itineraries/`
+
+### Parameters
+
+Parameter | Description | Required | Example
+--------- | ----------- |----------| -------
+origin | The ID of the departure place | True     |
+destination | The ID of the destination place | True     |
+departure_time | The desired departure time | False    | `2022-03-16T09:56:49Z`
+arrival_time | The desired arrival time | False    | `2022-03-16T09:56:49Z`
+passengers | Informations regarding the passengers | False    |
+
+<aside class="warning">None of the <code>departure_time</code> or the <code>arrival_time</code> is required but at least one must be provided.</aside>
+
+## Retrieve itinerary propositions
 
 ### HTTP Request
 
-`GET http://example.com/kittens/<ID>`
+`GET http://example.com/itineraries/<ID>/propositions`
 
-### URL Parameters
-
-Parameter | Description
---------- | -----------
-ID | The ID of the kitten to retrieve
-
-## Delete a Specific Kitten
-
-```ruby
-require 'kittn'
-
-api = Kittn::APIClient.authorize!('meowmeowmeow')
-api.kittens.delete(2)
-```
-
-```python
-import kittn
-
-api = kittn.authorize('meowmeowmeow')
-api.kittens.delete(2)
-```
-
-```shell
-curl "http://example.com/api/kittens/2" \
-  -X DELETE \
-  -H "Authorization: meowmeowmeow"
-```
-
-```javascript
-const kittn = require('kittn');
-
-let api = kittn.authorize('meowmeowmeow');
-let max = api.kittens.delete(2);
-```
-
-> The above command returns JSON structured like this:
-
-```json
-{
-  "id": 2,
-  "deleted" : ":("
-}
-```
-
-This endpoint deletes a specific kitten.
+## Validate a Proposition
 
 ### HTTP Request
 
-`DELETE http://example.com/kittens/<ID>`
-
-### URL Parameters
-
-Parameter | Description
---------- | -----------
-ID | The ID of the kitten to delete
-
+`POST http://example.com/itineraries/<ID>/propositions/<ID>/validate`
